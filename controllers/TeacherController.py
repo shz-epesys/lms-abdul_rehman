@@ -3,30 +3,29 @@ from handlers.DBHandler import (insert, select)
 from flask import jsonify,  request
 
 
-# @token_required
-def get_classes(teacher_id):
+@token_required
+def get_classes(current_user, teacher_id):
     classes = select(
         table="classes",
         feilds= ['name'],
         where=f"teacher_id = '{teacher_id}'"
     )
-    output = classes.fetchall()
-    print(output)
-    # for user in classes:
-    #     output.append({
-    #         'public_id': user.public_id,
-    #         'name': user.username,
-    #         'email': user.email
-    #     })
-    return jsonify({'classes': output})
+    classes = classes.fetchall()
+    result =[i[0] for i in classes]
+    if result:
+        return jsonify({'status':True, 'message:':'classes found.', 'classes': result}),200
+    return jsonify({'status':False, 'message:':'invalid entry'}),400
 
 
+
+@token_required
 def get_class(current_user,teacher_id,class_id):
-        # user_schema = UserSchema()
     classes = select(
         table="classes",
         feilds= ['name'],
         where=f"teacher_id = '{teacher_id}' and id = '{class_id}'"
     )
-    result = classes.fetchone()[0][0]
-    return jsonify(result)
+    result = classes.fetchall()
+    if result:
+        return jsonify({'status':True, 'message:':'classes found.', 'classe': result[0][0]}),200
+    return jsonify({'status':False, 'message:':'invalid entry'}),400
