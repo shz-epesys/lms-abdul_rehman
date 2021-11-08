@@ -156,6 +156,11 @@ def login():
         data = user_data.fetchall()
         if data:
             data = data[0]
+            role = select(
+                table="roles",
+                feilds=['role_name'],
+                where=f'id="{data[10]}"'
+            )
             print(data)
             token = jwt.encode(
                 {
@@ -168,7 +173,7 @@ def login():
                 'username': data[1],
                 'first_name': data[3],
                 'last_name': data[4],
-                'role_id': data[10],
+                'role': role.fetchall()[0][0],
                 'token': token.decode('UTF-8')
             }
             return jsonify(
@@ -184,7 +189,7 @@ def login():
             return jsonify(
                 {
                     "status": False,
-                    'message': 'User does not exist !'
+                    'message': 'User doesnt exist or incorrect Input !'
                 }
             ), 401
     return jsonify(
