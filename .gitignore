@@ -1,0 +1,7 @@
+#development
+venv/
+__pycache__
+
+migrations/
+# enviornment
+.env
