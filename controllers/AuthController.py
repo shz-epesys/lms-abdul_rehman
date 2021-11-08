@@ -1,7 +1,5 @@
 from re import T
-from sqlalchemy.sql.expression import null, true
-from sqlalchemy.sql.operators import exists
-from wtforms import fields
+from sqlalchemy.sql.expression import null
 from forms.AuthForm import StudentForm, TeacherForm, StudentForm, AdminForm,  LoginForm, UserForm
 from handlers.DBHandler import (insert, select)
 from flask import jsonify,  request

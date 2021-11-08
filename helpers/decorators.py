@@ -5,7 +5,6 @@ import jwt
 from config import SECRET_KEY
 
 
-
 # decorator for verifying the JWT
 def token_required(f):
     @wraps(f)
