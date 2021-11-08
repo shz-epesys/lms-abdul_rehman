@@ -113,7 +113,6 @@ def is_role_exist(role):
         where=f'role_name="{role}" '
     )
     role = role.fetchall()
-    print(role)
     if role:
         return {"status": True, "message": 'Role exists!', 'status_code': 200}
     return {"status": False, "message": 'Invalid Role!', 'status_code': 406}

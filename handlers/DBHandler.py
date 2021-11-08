@@ -30,7 +30,7 @@ def update(table='', feilds=[], values=[], where=''):
     db.session.commit()
 
 
-def select(table='', feilds=[], where=''):
+def select(table='', feilds=[], where='', as_list=False):
     if not feilds:
         feilds = '*'
     else:
@@ -38,6 +38,7 @@ def select(table='', feilds=[], where=''):
     query = f'SELECT {feilds} FROM {table}'
     if where:
         query += f' WHERE {where};'
-    # print(query)
     result = db.session.execute(query)
+    if as_list:
+        result = result.fetchall()
     return result
