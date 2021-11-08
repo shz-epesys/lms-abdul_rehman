@@ -16,6 +16,4 @@ SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{}:{}@{}/{}'.format(
     os.environ['DATABASE'],
 )
 
-print(SQLALCHEMY_DATABASE_URI)
-
 SQLALCHEMY_TRACK_MODIFICATIONS = False

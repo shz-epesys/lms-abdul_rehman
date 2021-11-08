@@ -13,5 +13,7 @@ migrate = Migrate(app, db)
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(teacher_bp, url_prefix='/teachers/<teacher_id>')
 
-if __name__ == '__main__':
-    app.run(debug=True)
+
+@app.route('/')
+def index():
+    return "<h1>Welcome to LMS</h1>"
