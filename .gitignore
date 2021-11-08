@@ -1,7 +1,8 @@
 #development
 venv/
 __pycache__
-
+.vscode
 migrations/
+
 # enviornment
 .env

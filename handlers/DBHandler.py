@@ -1,11 +1,8 @@
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from models.models import db
 
 
 def insert(table='', feilds=[], values=[], where=''):
     values = list(map(lambda v: f'"{v}"', values))
-    # print(values)
     query = f'INSERT INTO {table} ({",".join(feilds)}) VALUES ({",".join(values)})'
     if where:
         query += f'WHERE {where}'
