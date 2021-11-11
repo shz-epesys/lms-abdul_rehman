@@ -172,3 +172,11 @@ class Announcement(db.Model):
         db.Boolean(), nullable=False,
         server_default=expression.false()
     )
+    @staticmethod
+    def serialize(obj):
+        return {
+            'a_id': int(obj['id']),
+            'title': obj['title'],
+            'description': obj['description'],
+            'created_at': obj['created_at'],
+        }

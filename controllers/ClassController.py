@@ -1,10 +1,12 @@
-from handlers.DBHandler import (select, insert, select_with_join)
+from handlers.DBHandler import (
+    select, insert, select_with_join, update, delete)
 from flask import jsonify, request
 # from helpers.enums import RolesEnum
 from helpers.decorators import token_required
 # from models.models import Class
 from forms.ClassForm import ClassForm
-from models.models import Student, Class
+from forms.AnnouncForm import AnnouncForm
+from models.models import Student, Class, Announcement
 
 
 @token_required
@@ -35,12 +37,12 @@ def get_classes(current_user):
     classes = select(
         table="classes",
         feilds=['id', 'name', 'no_of_students', 'image', 'created_at'],
-        # limit=[f'{page}',f'{size}'],
+        limit=[f'{page}', f'{size}'],
         # where=f"teacher_id = '{teacher.get('id')}'",
         as_list=True
     )
 
-    print(classes)
+    # print(classes)
     if classes:
         return jsonify(
             {
@@ -81,7 +83,7 @@ def get_students(current_user, class_id):
         where=f" c.id = '{class_id}'",
         as_list=True
     )
-    print(students)
+    # print(students)
     if students:
         return jsonify(
             {
@@ -96,3 +98,105 @@ def get_students(current_user, class_id):
             'message:': "The student is not assigned this class."
         }
     ), 400
+
+
+@token_required
+def create_announcements(current_user, class_id):
+    form = AnnouncForm(data=request.json)
+    classe = is_class_exist(class_id)
+    if current_user.get('role_id') != 1:
+        return jsonify({'status': False, 'message:': "User not Autherized"}), 401
+
+    if not classe:
+        return jsonify({'status': False, 'message:': "Class doesn't Exist"}), 400
+
+    if form.validate():
+        insert(
+            table='announcements',
+            feilds=['title', 'description', 'class_id'],
+            values=[form.title.data, form.description.data, class_id]
+
+        )
+    else:
+        return jsonify({"status": False, "message": "Entries not valid"}), 406
+    return jsonify({"status": True, "message": "Announcement created."}), 201
+
+
+@token_required
+def get_announcements(current_user, class_id):
+    classe = is_class_exist(class_id)
+    page = request.args.get('page', 0, type=int)
+    size = request.args.get('size', 5, type=int)
+    if not classe:
+        return jsonify({'status': False, 'message:': "Class doesn't Exist"}), 400
+
+    announcements = is_announcement_exist(class_id)
+
+    if announcements:
+        return jsonify(
+            {
+                'status': True,
+                'message:': 'Announcements successfully found.',
+                'data':     [Announcement.serialize(x) for x in announcements]
+            }), 200
+    return jsonify({'status': False, 'message:': "this student doesn't have any classes"}), 400
+
+
+def is_announcement_exist(class_id, a_id=None):
+    if a_id:
+        announcements = select(
+            table="announcements",
+            feilds=['id', 'title', 'description', 'created_at','is_hidden'],
+            where=f"class_id = '{class_id}' and id ='{a_id}' and is_hidden = 0",
+            as_list=True
+        )
+    else:
+        announcements = select(
+            table="announcements",
+            feilds=['id', 'title', 'description', 'created_at','is_hidden'],
+            where=f"class_id = '{class_id}' and is_hidden = 0",
+            as_list=True
+        )
+
+    # print(announcements)
+    if announcements:
+        return announcements
+    return False
+
+
+@token_required
+def update_announcements(current_user, class_id, a_id):
+    form = AnnouncForm(data=request.json)
+    classe = is_class_exist(class_id)
+    if not classe:
+        return jsonify({'status': False, 'message:': "Class doesn't Exist"}), 400
+    announcements = is_announcement_exist(class_id, a_id)
+    # announcements = select(
+    #     table="announcements",
+    #     feilds=['is_hidden'],
+    #     where=f"class_id = '{class_id}' and id ='{a_id}'  and is_hidden = 0",
+    #     as_list=True
+    # )[0]
+    if not announcements:
+        return jsonify({'status': False, 'message:': "Announcement doesn't Exist"}), 404
+    update(
+        table="announcements",
+        feilds=['title', 'description', 'class_id'],
+        values=[form.title.data, form.description.data, class_id],
+        where=f"class_id = '{class_id}' and id ='{a_id}'"
+    )
+    return jsonify({'status': True, 'message:': "Announcement updated"}), 200
+
+
+@token_required
+def delete_announcements(current_user, class_id, a_id):
+    announcements = is_announcement_exist(class_id, a_id)
+    if not announcements:
+        return jsonify({'status': False, 'message:': "Announcement doesn't Exist"}), 404
+    update(
+        table="announcements",
+        feilds=['is_hidden'],
+        values=['1'],
+        where=f"class_id = '{class_id}' and id ='{a_id}'"
+    )
+    return jsonify({'status': True, 'message:': "Announcement deleted"}), 200

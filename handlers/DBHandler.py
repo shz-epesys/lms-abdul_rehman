@@ -36,11 +36,11 @@ def select(table='', feilds=[], where='', as_list=False, limit=[]):
         feilds = ','.join(feilds)
         limit = ','.join(limit)
     query = f'SELECT {feilds} FROM {table}'
-    if limit:
-        query += f' LIMIT {limit}'
 
     if where:
-        query += f' WHERE {where};'
+        query += f' WHERE {where}'
+    if limit:
+        query += f' LIMIT {limit};'
     result = db.session.execute(query)
     if as_list:
         result = result.mappings().all()
