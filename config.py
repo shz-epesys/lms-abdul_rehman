@@ -1,11 +1,12 @@
 import os
 from dotenv import dotenv_values
 
-SECRET_KEY = os.urandom(32)
-
-basedir = os.path.abspath(os.path.dirname(__file__))
 dotenv_path = '.env'
 dotenv_values(dotenv_path)
+
+SECRET_KEY = os.environ['SECRET_KEY']
+
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 DEBUG = True
 
@@ -15,7 +16,5 @@ SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{}:{}@{}/{}'.format(
     os.environ['HOST'],
     os.environ['DATABASE'],
 )
-
-print(SQLALCHEMY_DATABASE_URI)
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False

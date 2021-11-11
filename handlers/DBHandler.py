@@ -1,4 +1,5 @@
 from models.models import db
+from flask import request
 
 
 def insert(table='', feilds=[], values=[], where=''):
@@ -27,15 +28,39 @@ def update(table='', feilds=[], values=[], where=''):
     db.session.commit()
 
 
-def select(table='', feilds=[], where='', as_list=False):
+def select(table='', feilds=[], where='', as_list=False, limit=[]):
+
     if not feilds:
         feilds = '*'
     else:
         feilds = ','.join(feilds)
+        limit = ','.join(limit)
     query = f'SELECT {feilds} FROM {table}'
+    if limit:
+        query += f' LIMIT {limit}'
+
     if where:
         query += f' WHERE {where};'
     result = db.session.execute(query)
     if as_list:
-        result = result.fetchall()
+        result = result.mappings().all()
+    return result
+
+
+def select_with_join(tables=[], feilds=[], joins=[], where='', as_list=False, limit=[]):
+    if not feilds:
+        feilds = '*'
+    else:
+        feilds = ','.join(feilds)
+        limit = ','.join(limit)
+    query = f'SELECT {feilds} FROM {tables[0]} '
+    for i in range(len(joins)):
+        query += f'INNER JOIN {tables[i+1]} ON {joins[i]} '
+    if where:
+        query += f' WHERE {where}'
+    if limit:
+        query += f' LIMIT {limit};'
+    result = db.session.execute(query)
+    if as_list:
+        result = result.mappings().all()
     return result

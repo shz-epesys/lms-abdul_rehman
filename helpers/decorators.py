@@ -5,7 +5,7 @@ import jwt
 from config import SECRET_KEY
 
 
-# decorator for verifying the JWT
+#  decorator for verifying the JWT
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -15,7 +15,7 @@ def token_required(f):
             token = request.headers['token']
         # return 401 if token is not passed
         if not token:
-            return jsonify({'message': 'Token is missing !!'}), 401
+            return jsonify({'status': False, 'message': 'Token is missing !!'}), 401
 
         try:
             # decoding the payload to fetch the stored details
@@ -23,10 +23,12 @@ def token_required(f):
             current_user = select(
                 table='users',
                 feilds=[],
-                where=f"username='{data['username']}';"
-            )
+                where=f"username='{data['username']}';",
+                as_list=True
+            )[0]
         except:
             return jsonify({
+                'status': False,
                 'message': 'Token is invalid !!'
             }), 401
         return f(current_user, *args, **kwargs)

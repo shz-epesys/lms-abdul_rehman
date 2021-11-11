@@ -25,7 +25,7 @@ class User(db.Model):
     first_name = db.Column(db.String(60), nullable=False)
     last_name = db.Column(db.String(60), nullable=False)
     email = db.Column(db.String(60), unique=True)
-    dob = db.Column(db.DateTime, default=None)
+    dob = db.Column(db.Date ,default=None)
     contact_no = db.Column(db.Integer)
     address = db.Column(db.String(100))
     city = db.Column(db.String(60))
@@ -56,6 +56,17 @@ class Student(db.Model):
     created_at = db.Column(
         db.DateTime, server_default=expression.text('NOW()'), nullable=False
     )
+    @staticmethod
+    def serialize(obj):
+        return {
+            'studet_id': int(obj['id']),
+            'first_name': obj['first_name'],
+            'last_name': obj['last_name'],
+            'dob': obj['dob'],
+            'image': obj['image'],
+            'contact_no': obj['contact_no'],
+            'created_at': obj['created_at'],
+        }
 
 
 class Teacher(db.Model):
@@ -93,6 +104,16 @@ class Class(db.Model):
     created_at = db.Column(
         db.DateTime, server_default=expression.text('NOW()'), nullable=False
     )
+
+    @staticmethod
+    def serialize(obj):
+        return {
+            'class_id': int(obj['id']),
+            'name': obj['name'],
+            'no_of_students': obj['no_of_students'],
+            'image': obj['image'],
+            'created_at': obj['created_at'],
+        }
 
 
 class TeacherClass(db.Model):

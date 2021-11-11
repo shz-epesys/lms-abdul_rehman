@@ -1,63 +1,78 @@
-from decorators.token_required import token_required
 from handlers.DBHandler import (select)
 from flask import jsonify
+from helpers.enums import RolesEnum
+from helpers.decorators import token_required
+from models.models import Class, Teacher
 
 
-@token_required
-def is_teacher(current_user, teacher_id):
-    print(current_user)
-    # role = select(
-    #     table="roles",
-    #     feilds=['role_name'],
-    #     where=f"id='{}'",
-    #     as_list=True
-    # )
-    return jsonify({}), 200
+def is_teacher(current_user):
+    role = select(
+        table="roles",
+        feilds=['role_name'],
+        where=f"id='{current_user.get('role_id')}'",
+        as_list=True
+    )
+    if len(role) and role[0].get('role_name') == RolesEnum.Teacher.value:
+        return True
+    return False
 
 
-def is_teacher_exist(teacher_id):
+def is_teacher_exist(current_user):
     teacher = select(
         table="teachers",
         feilds=[],
-        where=f"id = '{teacher_id}'"
+        where=f"user_id = '{current_user.get('id')}'",
+        as_list=True
     )
-    teacher = teacher.fetchall()
-    print(teacher)
     if teacher:
-        return {"status": True, "message": "Teacher exists!", 'status_code': 200}
-    return {"status": False, "message": "Teacher doesn't exists!", 'status_code': 406}
+        return teacher[0]
+    return False
 
 
 @token_required
-def get_classes(current_user, teacher_id):
-    teacher = is_teacher_exist(teacher_id)
-    if not teacher['status']:
-        return jsonify({'status': teacher['status'], 'message:': teacher['message']}), teacher['status_code']
+def get_classes(current_user):
+    if not is_teacher(current_user):
+        return jsonify({'status': False, 'message:': "Bad Request"}), 400
+
+    teacher = is_teacher_exist(current_user)
+    if not teacher:
+        return jsonify({'status': False, 'message:': "Teacher doesn't Exist"}), 400
 
     classes = select(
         table="classes",
-        feilds=['name'],
-        where=f"teacher_id = '{teacher_id}'"
+        feilds=['id', 'name', 'no_of_students', 'image', 'created_at'],
+        where=f"teacher_id = '{teacher.get('id')}'",
+        as_list=True
     )
-    classes = classes.fetchall()
-    result = [i[0] for i in classes]
-    if result:
-        return jsonify({'status': True, 'message:': 'classes successfully found.', 'classes': result}), 200
+
+    if classes:
+        return jsonify(
+            {
+                'status': True,
+                'message:': 'classes successfully found.',
+                'data': [Class.serialize(x) for x in classes]
+            }), 200
     return jsonify({'status': False, 'message:': "this teacher doesn't have any classes"}), 400
 
 
-@token_required
-def get_class(current_user, teacher_id, class_id):
-    teacher = is_teacher_exist(teacher_id)
-    if not teacher['status']:
-        return jsonify({'status': teacher['status'], 'message:': teacher['message']}), teacher['status_code']
+@ token_required
+def get_class(current_user, class_id):
+
+    if not is_teacher(current_user):
+        return jsonify({'status': False, 'message:': "Bad Request"}), 400
+
+    teacher = is_teacher_exist(current_user)
+    if not teacher:
+        return jsonify({'status': False, 'message:': "Teacher doesn't Exist"}), 400
 
     classes = select(
         table="classes",
-        feilds=['name'],
-        where=f"teacher_id = '{teacher_id}' and id = '{class_id}'"
+        where=f"teacher_id = '{teacher.get('id')}' and id = '{class_id}'",
+        as_list=True
     )
-    result = classes.fetchall()
-    if result:
-        return jsonify({'status': True, 'message:': 'classes found.', 'classe': result[0][0]}), 200
-    return jsonify({'status': False, 'message:': 'invalid class id'}), 400
+    if classes:
+        return jsonify({'status': True, 'message:': 'classes successfully found.',
+                        'data': Class.serialize(classes[0])}), 200
+    return jsonify({'status': False, 'message:': "this teacher doesn't have any classes"}), 400
+
+
