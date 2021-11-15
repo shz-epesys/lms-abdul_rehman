@@ -21,5 +21,11 @@ app.register_blueprint(teacher_bp, url_prefix='/teachers')
 app.register_blueprint(student_bp, url_prefix='/students')
 app.register_blueprint(class_bp, url_prefix='/classes')
 
+
+@app.route('/')
+def index():
+    return "<h1>Welcome to LMS</h1>"
+
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
