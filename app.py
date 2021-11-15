@@ -22,9 +22,10 @@ app.register_blueprint(student_bp, url_prefix='/students')
 app.register_blueprint(class_bp, url_prefix='/classes')
 
 
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
-
+    
 
 @app.route('/')
 def index():
