@@ -1,0 +1,41 @@
+GET <base url>/teacher/<teacher_id>/classes
+body: 
+response: 
+200:
+{
+    "classes": [
+       		 "maths",
+        		"urdu"
+   	 ],
+    "message:": 	"classes successfully found.",
+    "status": 	true
+}
+400:
+{
+
+    "message:": 	"invalid teacher_id",
+    "status": 	false
+}
+
+======================================================================================================
+GET <base url>/teacher/<teacher_id>/classes/<class_id>
+body: 
+response: 
+200:
+GET <base url>/teacher/<teacher_id>/classes
+body: 
+response: 
+200:
+{
+    "classes": [
+       		 "maths",
+        		"urdu"
+   	 ],
+    "message:": 	"classes successfully found.",
+    "status": 	true
+}
+400:
+{
+    "message:": "invalid entry",
+    "status": false
+}

@@ -13,7 +13,7 @@ def create_user(form):
     role_id = select(
         table='roles',
         feilds=['id'],
-        where=f'role_name = "{form.role.data}"',
+        where=f'role_name = "{form.role.data}" and is_hidden=0',
         as_list=True
 
     )
@@ -21,7 +21,7 @@ def create_user(form):
     user_data = select(
         table='users',
         feilds=[],
-        where=f'username  = "{form.username.data.lower()}" or email = "{form.email.data}"',
+        where=f'username  = "{form.username.data.lower()}" or email = "{form.email.data}" and is_hidden=0',
         as_list=True
 
     )
@@ -49,7 +49,7 @@ def create_user(form):
         user_id = select(
             table='users',
             feilds=['id'],
-            where=f'username  = "{form.username.data.lower()}"',
+            where=f'username  = "{form.username.data.lower()}" and is_hidden=0',
             as_list=True
 
         )
@@ -113,7 +113,7 @@ def is_role_exist(role):
     role = select(
         table="roles",
         feilds=['role_name'],
-        where=f'role_name="{role}" ',
+        where=f'role_name="{role}" and is_hidden= 0 ',
         as_list=True
     )
     role = role[0].get('role_name')
@@ -156,7 +156,7 @@ def login():
         user_data = select(
             table="users",
             feilds=[],
-            where=f'(username="{form.username.data}" or email="{form.username.data}") and password="{form.password.data}"',
+            where=f'(username="{form.username.data}" or email="{form.username.data}") and password="{form.password.data}" and is_hidden=0',
             as_list=True
 
         )[0]
@@ -164,7 +164,7 @@ def login():
             role = select(
                 table="roles",
                 feilds=['role_name'],
-                where=f'id="{user_data.get("role_id")}"',
+                where=f'id="{user_data.get("role_id")}" and is_hidden=0',
                 as_list=True
             )[0]
             token = jwt.encode(
