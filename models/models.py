@@ -136,6 +136,8 @@ class Class(db.Model):
         return {
             'class_id': int(query['id']),
             'name': query['name'],
+            'teacher_name': query['first_name']+" "+query['last_name'],
+            # 'last_name': query['last_name'],/
             'no_of_students': query['no_of_students'],
             'image': query['image'],
             'created_at': query['created_at'],

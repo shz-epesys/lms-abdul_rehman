@@ -21,6 +21,7 @@ def token_required(f):
         try:
             # decoding the payload to fetch the stored details
             data = jwt.decode(token, SECRET_KEY)
+            print(data)
             current_user = select(
                 table='users',
                 feilds=[],

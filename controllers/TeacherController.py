@@ -1,20 +1,20 @@
 from handlers.DBHandler import (select)
 from flask import jsonify
-from helpers.enums import RolesEnum
+from helpers.enums import RolesEnum, RolesMappingEnum
 from helpers.decorators import token_required
 from models.models import Class, Teacher
 
 
-def is_teacher(current_user):
-    role = select(
-        table="roles",
-        feilds=['role_name'],
-        where=f"id='{current_user.get('role_id')}' and is_hidden=0",
-        as_list=True
-    )
-    if len(role) and role[0].get('role_name') == RolesEnum.Teacher.value:
-        return True
-    return False
+# def is_teacher(current_user):
+#     role = select(
+#         table="roles",
+#         feilds=['role_name'],
+#         where=f"id='{current_user.get('role_id')}' and is_hidden=0",
+#         as_list=True
+#     )
+#     if len(role) and role[0].get('role_name') == RolesEnum.Teacher.value:
+#         return True
+#     return False
 
 
 def is_teacher_exist(current_user):
@@ -31,7 +31,7 @@ def is_teacher_exist(current_user):
 
 @token_required
 def get_classes(current_user):
-    if not is_teacher(current_user):
+    if not current_user.get('role_id')==RolesMappingEnum.Teacher.value:
         return jsonify({'status': False, 'message:': "Bad Request"}), 400
 
     teacher = is_teacher_exist(current_user)
@@ -55,10 +55,9 @@ def get_classes(current_user):
     return jsonify({'status': False, 'message:': "this teacher doesn't have any classes"}), 400
 
 
-@ token_required
+@token_required
 def get_class(current_user, class_id):
-
-    if not is_teacher(current_user):
+    if not current_user.get('role_id')==RolesMappingEnum.Teacher.value:
         return jsonify({'status': False, 'message:': "Bad Request"}), 400
 
     teacher = is_teacher_exist(current_user)

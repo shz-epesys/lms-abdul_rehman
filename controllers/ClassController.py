@@ -16,6 +16,8 @@ from datetime import datetime
 
 @token_required
 def create_class(current_user):
+    if current_user.get('role_id') != RolesMappingEnum.Teacher.value:
+        return jsonify({'status': False, 'message:': "User not Autherized"}), 401
     form = ClassForm(data=request.json)
     class_data = select(
         table='classes',
@@ -123,6 +125,8 @@ def get_student(current_user, class_id, st_id):
 
 @token_required
 def get_students(current_user, class_id):
+    if current_user.get('role_id') != RolesMappingEnum.Teacher.value:
+        return jsonify({'status': False, 'message:': "User not Autherized"}), 401
     page = request.args.get('page', 0, type=int)
     size = request.args.get('size', 5, type=int)
     clss = is_class_exist(class_id)
@@ -218,6 +222,8 @@ def is_announcement_exist(class_id, a_id=None):
 
 @token_required
 def update_announcements(current_user, class_id, a_id):
+    if current_user.get('role_id') != RolesMappingEnum.Teacher.value:
+        return jsonify({'status': False, 'message:': "User not Autherized"}), 401
     form = AnnouncForm(data=request.json)
     clss = is_class_exist(class_id)
     if not clss:

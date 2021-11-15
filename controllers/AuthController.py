@@ -1,7 +1,7 @@
 from sqlalchemy.sql.expression import null
 from forms.AuthForm import StudentForm, TeacherForm, StudentForm, AdminForm,  LoginForm, UserForm
 from handlers.DBHandler import (insert, select)
-from flask import jsonify,  request
+from flask import jsonify,  request#,session
 from datetime import datetime, timedelta
 import uuid
 
@@ -174,6 +174,7 @@ def login():
                 },
                 SECRET_KEY
             )
+            # session['role_name'] = role.get('role_name')
             login_data = {
                 'username': user_data.get("username"),
                 'first_name': user_data.get("first_name"),
@@ -203,3 +204,7 @@ def login():
             'message': 'Invalid Entries or Fields missing!!!!'
         }
     ), 400
+
+
+# def logout():
+#     session.pop('role_name',None)

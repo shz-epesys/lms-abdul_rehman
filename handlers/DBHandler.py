@@ -57,6 +57,7 @@ def select(table='', feilds=[], where='', as_list=False, limit=[]):
         query += f' WHERE {where}'
     if limit:
         query += f' LIMIT {limit};'
+    # print(query)
     result = db.session.execute(query)
     if as_list:
         result = result.mappings().all()
