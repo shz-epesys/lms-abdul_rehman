@@ -25,7 +25,7 @@ class User(db.Model):
     first_name = db.Column(db.String(60), nullable=False)
     last_name = db.Column(db.String(60), nullable=False)
     email = db.Column(db.String(60), unique=True)
-    dob = db.Column(db.DateTime, default=None)
+    dob = db.Column(db.Date, default=None)
     contact_no = db.Column(db.Integer)
     address = db.Column(db.String(100))
     city = db.Column(db.String(60))
@@ -57,6 +57,20 @@ class Student(db.Model):
         db.DateTime, server_default=expression.text('NOW()'), nullable=False
     )
 
+    @staticmethod
+    def serialize(query,many=False):
+        if many:
+            return [Student.serialize(x, many=True) for x in query]
+        return {
+            'studet_id': int(query['id']),
+            'first_name': query['first_name'],
+            'last_name': query['last_name'],
+            'dob': query['dob'],
+            'image': query['image'],
+            'contact_no': query['contact_no'],
+            'created_at': query['created_at'],
+        }
+
 
 class Teacher(db.Model):
     __tablename__ = 'teachers'
@@ -74,6 +88,23 @@ class Teacher(db.Model):
     created_at = db.Column(
         db.DateTime, nullable=False, server_default=expression.text('NOW()')
     )
+    
+    @staticmethod
+    def serialize(query,many=False):
+        if many:
+            return [Teacher.serialize(x, many=True) for x in query]
+        return {
+            'id': int(query['id']),
+            'first_name': query['first_name'],
+            'last_name': query['last_name'],
+            'dob': query['dob'],
+            'reg_no': query['reg_no'],
+            'experience': query['experience'],
+            'image': query['image'],
+            'contact_no': query['contact_no'],
+            'created_at': query['created_at'],
+        }
+
 
 
 class Class(db.Model):
@@ -93,6 +124,24 @@ class Class(db.Model):
     created_at = db.Column(
         db.DateTime, server_default=expression.text('NOW()'), nullable=False
     )
+
+    # @staticmethod
+    # def serialize_list(query, many=True):
+    #     return [Class.serialize(x) for x in query]
+
+    @staticmethod
+    def serialize(query, many=False):
+        if many:
+            return [Class.serialize(x) for x in query]
+        return {
+            'class_id': int(query['id']),
+            'name': query['name'],
+            'teacher_name': query['first_name']+" "+query['last_name'],
+            # 'last_name': query['last_name'],/
+            'no_of_students': query['no_of_students'],
+            'image': query['image'],
+            'created_at': query['created_at'],
+        }
 
 
 class TeacherClass(db.Model):
@@ -126,7 +175,8 @@ class ReadingMaterial(db.Model):
     class_id = db.Column(db.Integer, db.ForeignKey('classes.id'))
     file_name = db.Column(db.String(60), nullable=False)
     file_path = db.Column(db.String(600), nullable=False)
-    file_type = db.Column(db.String(60), nullable=False)
+    # file_type = db.Column(db.String(60), nullable=False,
+    #                       server_default=expression.text('file'))
     created_at = db.Column(
         db.DateTime, server_default=expression.text('NOW()'), nullable=False
     )
@@ -135,6 +185,16 @@ class ReadingMaterial(db.Model):
         db.Boolean(), nullable=False,
         server_default=expression.false()
     )
+    @staticmethod
+    def serialize(query, many=False):
+        if many:
+            return [ReadingMaterial.serialize(x) for x in query]
+        return {
+            'id': int(query['id']),
+            'file_name': query['file_name'],
+            'file_path': query['file_path'],
+            'created_at': query['created_at'],
+        }
 
 
 class Announcement(db.Model):
@@ -151,3 +211,18 @@ class Announcement(db.Model):
         db.Boolean(), nullable=False,
         server_default=expression.false()
     )
+
+    # @staticmethod
+    # def serialize_list(query, many=True):
+    #     return [Announcement.serialize(x) for x in query]
+
+    @staticmethod
+    def serialize(query, many=False):
+        if many:
+            return [Announcement.serialize(x) for x in query]
+        return {
+            'a_id': int(query['id']),
+            'title': query['title'],
+            'description': query['description'],
+            'created_at': query['created_at'],
+        }

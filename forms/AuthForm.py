@@ -1,17 +1,8 @@
 import re
 
-# from flask_marshmallow import Marshmallow
 from wtforms import Form, PasswordField, StringField
 from wtforms.fields.core import DateTimeField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, Regexp
-
-# ma = Marshmallow()
-
-
-# class UserSchema(ma.Schema):
-#     class Meta:
-#         fields = ('id', 'username', 'first_name', 'last_name',
-#                   'email', 'password', 'contact_no', 'address', 'city')
 
 
 class LoginForm(Form):

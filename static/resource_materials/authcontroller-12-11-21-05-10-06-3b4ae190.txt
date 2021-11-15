@@ -1,0 +1,81 @@
+POST <base url>/auth/signup
+body: 
+{
+    "username": "Test User",
+    "first_name": "Adol",
+    "last_name": "Hitler",
+    "email": "kb@JO57MI.com", 
+    "password":"Passw@rd123",
+    "confirm_password":"Passw@rd123",
+    "role":"teacher",
+    "dob":"4-11-21",
+    "contact_no":"000000000000",
+    "address":"Berlin, Third reich",
+    "city":"Berlin",
+    "degree":"BSCS",
+    "exp":"2 years"
+}
+response: 
+201:
+{
+	"status": True,
+	"message": "Signup successful."
+}
+401:
+{
+	"status": False,
+	"message": "Duplicate entries!"
+}
+or
+401:
+{
+	"status": False,
+	"message": "Entries not valid!"
+}
+406:
+{
+	"status": False,
+	"message": "invalid role!!!"
+}
+400:
+{
+	"status": False,
+	 "message": "Invalid Entries or Fields missing!!!"
+}
+note: 
+	Username and Email must be Unique
+	Password must have at least one capital letter,special character and number
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+POST <base url>/auth/login
+body: {
+     "username": "jiko",
+     "password":"Mars@12345$"
+}
+response: 
+201:
+{
+   "data": {
+        "first_name": "Joseph",
+        "last_name": "Stalin",
+        "role_id": 2,
+        "token": 	"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6Imtpazc3aSIsImV4cCI6MTYzNjQ0MDIxNX0.JU2e8hJbB	gkVWjXIxMOw9nxmOyT_8P55ikv_Nhaoyvk",
+        "username": "kik77i"
+    },
+    "message": "Login Successful",
+    "status": true
+}
+401:
+{
+       "status": True,
+       'message': 'User does not exist !'
+}
+
+400:
+{
+       "status": False,
+       'message': 'Invalid Entries or Fields missing!!!'
+}
+          
+

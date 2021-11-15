@@ -1,8 +1,7 @@
-from re import T
 from sqlalchemy.sql.expression import null
 from forms.AuthForm import StudentForm, TeacherForm, StudentForm, AdminForm,  LoginForm, UserForm
 from handlers.DBHandler import (insert, select)
-from flask import jsonify,  request
+from flask import jsonify,  request#,session
 from datetime import datetime, timedelta
 import uuid
 
@@ -14,17 +13,20 @@ def create_user(form):
     role_id = select(
         table='roles',
         feilds=['id'],
-        where=f'role_name = "{form.role.data}"'
+        where=f'role_name = "{form.role.data}" and is_hidden=0',
+        as_list=True
 
     )
-    role_id = role_id.fetchall()[0][0]
+    role_id = role_id[0].get("id")
     user_data = select(
         table='users',
         feilds=[],
-        where=f'username  = "{form.username.data.lower()}" or email = "{form.email.data}"'
+        where=f'username  = "{form.username.data.lower()}" or email = "{form.email.data}" and is_hidden=0',
+        as_list=True
+
     )
-    data = user_data.fetchall()
-    if not data:
+    # data = user_data
+    if not user_data:
         insert(
             table='users',
             feilds=[
@@ -47,9 +49,12 @@ def create_user(form):
         user_id = select(
             table='users',
             feilds=['id'],
-            where=f'username  = "{form.username.data.lower()}"'
+            where=f'username  = "{form.username.data.lower()}" and is_hidden=0',
+            as_list=True
+
         )
-        return user_id.fetchall()[0][0]
+        # return user_id.fetchall()[0][0]
+        return user_id[0].get("id")
     return null
 
 
@@ -108,10 +113,10 @@ def is_role_exist(role):
     role = select(
         table="roles",
         feilds=['role_name'],
-        where=f'role_name="{role}" '
+        where=f'role_name="{role}" and is_hidden= 0 ',
+        as_list=True
     )
-    role = role.fetchall()
-    print(role)
+    role = role[0].get('role_name')
     if role:
         return {"status": True, "message": 'Role exists!', 'status_code': 200}
     return {"status": False, "message": 'Invalid Role!', 'status_code': 406}
@@ -151,29 +156,30 @@ def login():
         user_data = select(
             table="users",
             feilds=[],
-            where=f'(username="{form.username.data}" or email="{form.username.data}") and password="{form.password.data}"'
-        )
-        data = user_data.fetchall()
-        if data:
-            data = data[0]
+            where=f'(username="{form.username.data}" or email="{form.username.data}") and password="{form.password.data}" and is_hidden=0',
+            as_list=True
+
+        )[0]
+        if user_data:
             role = select(
                 table="roles",
                 feilds=['role_name'],
-                where=f'id="{data[10]}"'
-            )
-            print(data)
+                where=f'id="{user_data.get("role_id")}" and is_hidden=0',
+                as_list=True
+            )[0]
             token = jwt.encode(
                 {
-                    'username': data[1],
+                    'username': user_data.get("username"),
                     'exp': datetime.utcnow() + timedelta(minutes=60*24)
                 },
                 SECRET_KEY
             )
+            # session['role_name'] = role.get('role_name')
             login_data = {
-                'username': data[1],
-                'first_name': data[3],
-                'last_name': data[4],
-                'role': role.fetchall()[0][0],
+                'username': user_data.get("username"),
+                'first_name': user_data.get("first_name"),
+                'last_name': user_data.get("last_name"),
+                'role': role.get("role_name"),
                 'token': token.decode('UTF-8')
             }
             return jsonify(
@@ -198,3 +204,7 @@ def login():
             'message': 'Invalid Entries or Fields missing!!!!'
         }
     ), 400
+
+
+# def logout():
+#     session.pop('role_name',None)
